@@ -1,0 +1,84 @@
+<% layout('/layouts/default.html', {title: '司机管理', libs: ['dataGrid']}){ %>
+<div class="main-content">
+	<div class="box box-main">
+		<div class="box-header">
+			<div class="box-title">
+				<i class="icon-user"></i> ${text('驾驶员信息')}
+			</div>
+		</div>
+		<div class="box-body">
+			<#form:form id="searchForm" model="${driverInfo}" action="${ctx}/driver/driverInfo/lockListData?carId=${carId}" method="post" class="form-inline"
+					data-page-no="${parameter.pageNo}" data-page-size="${parameter.pageSize}" data-order-by="${parameter.orderBy}">
+			</#form:form>
+			<table id="dataGrid"></table>
+			<div id="dataGridPage"></div>
+		</div>
+	</div>
+</div>
+<% } %>
+<script>
+//定义方法
+Array.prototype.indexOf = function(val) { 
+for (var i = 0; i < this.length; i++) { 
+if (this[i] == val) return i; 
+} 
+return -1; 
+};
+Array.prototype.remove = function(val) { 
+var index = this.indexOf(val); 
+if (index > -1) { 
+this.splice(index, 1); 
+} 
+};
+function getIds(){
+	return selectids;
+}
+var selectids=[];
+// 初始化DataGrid对象
+$('#dataGrid').dataGrid({
+ 	 showRownum: false,	// 是否显示行号
+ 	 showCheckbox: true,
+	searchForm: $("#searchForm"),
+	columnModel: [
+		{header:'${text("操作")}', name:'actions', width:120, sortable:false, title:false,align:"center", formatter: function(val, obj, row, act){
+			var actions = [];
+			<% if(hasPermi('driver:driverInfo:edit')){ %>
+				actions.push('<a href="${ctx}/driver/driverInfo/form?id='+row.id+'" class="btnList" title="${text("编辑司机")}"><i class="fa fa-pencil"></i></a>&nbsp;');
+				actions.push('<a href="${ctx}/driver/driverInfo/delete?id='+row.id+'" class="btnList" title="${text("删除司机")}" data-confirm="${text("确认要删除该司机吗？")}"><i class="fa fa-trash-o"></i></a>&nbsp;');
+			<% } %>
+			return actions.join('');
+		}},
+		{header:'${text("司机姓名")}', name:'name', index:'a.name', width:150, align:"center", frozen:true},
+		{header:'${text("电话号码")}', name:'telephone', index:'a.telephone', width:150, align:"center"},
+		{header:'${text("性别")}', name:'sex', index:'a.sex', width:150, align:"center", formatter: function(val, obj, row, act){
+			//return js.getDictLabel(${@DictUtils.getDictListJson('')}, val, '${text("未知")}', true);
+			var sex1;
+			if(val==1){
+				sex1='男';
+			}
+			else if(val==0){
+				sex1='女';
+			}else{
+				sex1='未知';
+			}
+			return sex1;
+		}},
+		{header:'${text("人脸图片")}', name:'facefile', index:'a.facefile', width:150, align:"center",formatter: function(val, obj, row, act){
+			return '<img src= '+val +' height="60"  width="150"  alt="人脸图片" />';	
+		}}
+	],
+	// 加载成功后执行事件
+	ajaxSuccess: function(data){
+		
+	},
+	//单击行时
+	onSelectRow: function(id, isSelect, event) {
+		if(isSelect){
+		selectids.push(id);
+		}else{
+		selectids.remove(id);
+		} 
+		console.log(selectids);
+    },
+});
+</script>

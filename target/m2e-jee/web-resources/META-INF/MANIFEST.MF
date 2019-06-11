@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Built-By: CR7
+Build-Jdk: 10.0.1
+Implementation-Title: JeeSite Web
+Implementation-Version: 4.1.4-SNAPSHOT
+Implementation-Vendor-Id: com.jeesite
+Implementation-Vendor: JeeSite
+Implementation-URL: http://jeesite.com
+Main-Class: com.jeesite.modules.Application
+Created-By: Maven Integration for Eclipse
+

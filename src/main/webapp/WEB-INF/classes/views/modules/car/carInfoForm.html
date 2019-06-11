@@ -1,0 +1,211 @@
+<% layout('/layouts/default.html', {title: '车辆管理', libs:
+['validate','fileupload','dataGrid']}){ %>
+<div class="main-content">
+	<div class="box box-main">
+		<div class="box-header with-border">
+			<div class="box-title">
+				<i class="fa fa-automobile"></i> ${text(carInfo.isNewRecord ? '新增车辆'
+				: '编辑车辆')}
+			</div>
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool"
+					data-widget="collapse">
+					<i class="fa fa-minus"></i>
+				</button>
+			</div>
+		</div>
+
+		<#form:form id="inputForm" model="${carInfo}"
+			action="${ctx}/car/carInfo/save" method="post"
+			class="form-horizontal">
+		<#form:hidden path="flag"/>
+			<div class="box-body">
+				<div class="form-unit">${text('车辆基本信息')}</div>
+				<#form:hidden path="id" />
+				<div class="row">
+					<div class="row">
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label class="control-label col-sm-4" title=""> <span
+									class="required ">*</span> ${text('车牌号')}：<i
+									class="fa icon-question hide"></i></label>
+								<div class="col-sm-4">
+									<#form:input path="platenum" maxlength="64"
+										class="form-control required" />
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label class="control-label col-sm-4" title=""> <span
+									class="required ">*</span> ${text('车队组织')}：<i
+									class="fa icon-question hide"></i></label>
+								<div class="col-sm-4">
+									<#form:input path="organization" maxlength="64"
+										class="form-control required" />
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label class="control-label col-sm-4" title=""> <span
+									class="required ">*</span> ${text('终端IMEI')}：<i
+									class="fa icon-question hide"></i></label>
+								<div class="col-sm-4">
+									<#form:input path="imei" maxlength="64"
+										class="form-control required" />
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+		</#form:form>
+		<div class="box-footer">
+			<div class="form-unit">
+				${text('驾驶员信息')}
+				<button type="button" id="addBtn" onclick="addDrivers()"
+					class="btn btn-sm btn-primary"
+					style="float:right;margin-right:50px">${text('添 加')}</button>
+			</div>
+			<#form:form id="searchForm"
+				action="${ctx}/driver/driverInfo/findDrivers?id=${carInfo.id}"
+				method="post" class="form-inline">
+			</#form:form>
+			<table id="dataGrid"></table>
+			<div class="row">
+				<div class="col-sm-offset-2 col-sm-10">
+					<% if (hasPermi('car:carInfo:edit')){ %>
+					<button type="submit" class="btn btn-sm btn-primary" id="btnSubmit">
+						<i class="fa fa-check"></i> ${text('保 存')}
+					</button>
+					&nbsp; <% } %>
+					<button type="button" class="btn btn-sm btn-default" id="btnCancel"
+						onclick="js.closeCurrentTabPage()">
+						<i class="fa fa-reply-all"></i> ${text('关 闭')}
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<% } %>
+<script>	
+// 初始化DataGrid对象
+$('#dataGrid').dataGrid({
+	searchForm: $("#searchForm"),
+	columnModel: [
+		{header:'${text("司机姓名")}', name:'name', index:'a.name', width:150, align:"center", frozen:true, formatter: function(val, obj, row, act){
+			return '<a href="${ctx}/driver/driverInfo/form?id='+row.id+'" class="btnList" data-title="${text("编辑司机")}">'+(val||row.id)+'</a>';
+		}},
+		{header:'${text("电话号码")}', name:'telephone', index:'a.telephone', width:150, align:"center"},
+		{header:'${text("性别")}', name:'sex', index:'a.sex', width:150, align:"center", formatter: function(val, obj, row, act){
+			var sex1;
+			if(val==1){
+				sex1='男';
+			}
+			else if(val==0){
+				sex1='女';
+			}else{
+				sex1='未知';
+			}
+			return sex1;
+		}},
+		{header:'${text("人脸图片")}', name:'facefile', index:'a.facefile', width:150, align:"center",formatter: function(val, obj, row, act){
+			return '<img src= '+val +' height="60"  width="150"  alt="人脸图片" />';	
+		}},
+		{header:'${text("操作")}', name:'actions', width:120, sortable:false, title:false,align:"center", formatter: function(val, obj, row, act){
+			console.log(val);
+			var actions = [];
+			<% if(hasPermi('driver:driverInfo:edit')){ %>
+				actions.push('<a href="${ctx}/driver/driverInfo/deleteRelation?car_id=${carInfo.id}&rrid='+row.rid+'" class="btnList" title="${text("删除司机")}" data-confirm="${text("确认要删除该司机吗？")}"><i class="fa fa-trash-o"></i></a>&nbsp;');
+			<% } %>
+			return actions.join('');
+		}}
+	],
+	// 加载成功后执行事件
+	ajaxSuccess: function(data){
+		console.log(data);
+	},
+	 reloadGrid: function(){
+	 	console.log("reload");
+        return reloadGrid();
+    }
+    
+});
+//
+/* $("#inputForm").validate({
+	submitHandler: function(form){
+		// 发送异步提交表单请求
+		js.ajaxSubmitForm($(form), function(data){
+			// 保存表单后提示结果消息
+			js.showMessage(data.message);
+			// 如果提交结果为true，则代表保存成功
+			if(data.result == Global.TRUE){
+				// 保存成功，后关闭当前Tab页签
+				js.closeCurrentTabPage(function(contentWindow){
+					// 这里是，在关闭当前Tab页签之前执行的回调方法
+					// 参数 contentWindow 返回的是上一个Tab页签的 window 对象
+					// 调用上一个页签window对象里的page()方法，刷新grid数据
+					contentWindow.page();
+				});
+			}
+		}, "json");
+	}
+}); */
+//
+$("#inputForm").validate({
+	submitHandler: function(form){
+		js.ajaxSubmitForm($(form), function(data){
+			js.showMessage(data.message);
+			if(data.result == Global.TRUE){
+				js.closeCurrentTabPage(function(contentWindow){
+					console.log(contentWindow);
+					contentWindow.page();
+				});
+			}
+		}, "json");
+    }
+});
+function addDrivers(){
+ layer.open({
+  type: 2 //Page层类型
+  ,area: ['768px', '400px']
+  ,btn: ['确认', '关闭']
+  ,btnclass: ['btn btn-primary', 'btn btn-danger']
+  ,btnAlign: 'r'
+  ,title: '添加驾驶员'
+  ,shade: 0.5 //遮罩透明度
+  ,maxmin: true //允许全屏最小化
+  ,anim: 1 //0-6的动画形式，-1不开启
+  ,content: '/hhscar/admin/driver/driverInfo/lockList?carId=${carInfo.id}'    //请求url
+  ,yes: function (index, layero) {
+               var ids = $(layero).find("iframe")[0].contentWindow.getIds();//需要添加的驾驶员信息
+               parent.layer.close(index);
+               var paramObj={"ids":ids,"car_id":'${carInfo.id}'};
+               var p=JSON.stringify(paramObj);
+               console.log(p);
+               //发送ajax
+               $.ajax({
+  					type: 'POST',
+ 					url: 'addRelate',
+				    data: p,
+  					success: function(){
+  						js.showMessage("添加成功", "添加驾驶员", "success", 2000);
+  						//=====
+  						js.getCurrentTabPage(function(contentWindow){
+								contentWindow.page();
+						})
+   					 },
+  					dataType: 'json'
+					});
+           }
+  ,cancel: function () {
+        return true;
+   } 
+});  
+}	
+</script>

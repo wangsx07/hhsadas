@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeesite.modules.driver.dao.DriverInfoDao">
+	
+	<!-- 查询数据
+	<select id="findList" resultType="DriverInfo">
+		SELECT ${sqlMap.column.toSql()}
+		FROM ${sqlMap.table.toSql()}
+		<where>
+			${sqlMap.where.toSql()}
+		</where>
+		ORDER BY ${sqlMap.order.toSql()}
+	</select> -->
+	
+	<select id="findlistByCarId" parameterType="java.lang.String" resultType="com.jeesite.modules.driver.entity.DriverInfo">
+			select 
+				d.id,
+				d.name,
+				d.telephone,
+				d.sex,
+				d.facefile,
+				r.id rid
+			from 
+				driver_info d,
+				cardriver_relate r
+			where 
+			   r.driver_id=d.id
+			and r.car_id=#{id}	
+	</select>
+	<delete id="delRelByRid" parameterType="java.lang.String">
+		delete from cardriver_relate  where id=#{rid}
+	</delete>
+	
+	<select id="selectLockDriver"  parameterType="java.lang.String"  resultType="com.jeesite.modules.driver.entity.DriverInfo">
+			select 
+				d.id,
+				d.name,
+				d.telephone,
+				d.sex,
+				d.facefile
+			from 
+				driver_info d
+			where 
+				d.id not in(
+			select driver_id from 	cardriver_relate where car_id=#{carId}
+				)
+	</select>
+	
+	<delete id="driver_id" parameterType="java.lang.String">
+		delete from cardriver_relate where driver_id=#{driver_id}
+	
+	</delete>
+	
+	<select id="findCarsByDriverId" parameterType="java.lang.String" resultType="java.lang.String">
+		select car_id from cardriver_relate where driver_id=#{driverId}
+	</select>
+	
+	<delete id="deleteAllRel" parameterType="java.lang.String">
+		delete from cardriver_relate where driver_id=#{driver_id}
+	</delete>
+</mapper>

@@ -1,0 +1,82 @@
+<% layout('/layouts/default.html', {title: 'car_driver_msg管理', libs: ['dataGrid']}){ %>
+<div class="main-content">
+	<div class="box box-main">
+		<div class="box-header">
+			<div class="box-title">
+				<i class="fa fa-list-alt"></i> ${text('car_driver_msg管理')}
+			</div>
+			<div class="box-tools pull-right">
+				<a href="#" class="btn btn-default" id="btnSearch" title="${text('查询')}"><i class="fa fa-filter"></i> ${text('查询')}</a>
+				<% if(hasPermi('car:carDriverMsg:edit')){ %>
+					<a href="${ctx}/car/carDriverMsg/form" class="btn btn-default btnTool" title="${text('新增car_driver_msg')}"><i class="fa fa-plus"></i> ${text('新增')}</a>
+				<% } %>
+			</div>
+		</div>
+		<div class="box-body">
+			<#form:form id="searchForm" model="${carDriverMsg}" action="${ctx}/car/carDriverMsg/listData" method="post" class="form-inline hide"
+					data-page-no="${parameter.pageNo}" data-page-size="${parameter.pageSize}" data-order-by="${parameter.orderBy}">
+				<div class="form-group">
+					<label class="control-label">${text('车辆id')}：</label>
+					<div class="control-inline">
+						<#form:input path="carId" maxlength="20" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('驾驶员id')}：</label>
+					<div class="control-inline">
+						<#form:input path="driverId" maxlength="20" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('消息状态')}：</label>
+					<div class="control-inline width-120">
+						<#form:select path="sendStatus" dictType="" blankOption="true" class="form-control"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('消息类型')}：</label>
+					<div class="control-inline width-120">
+						<#form:select path="msgType" dictType="" blankOption="true" class="form-control"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<button type="submit" class="btn btn-primary btn-sm">${text('查询')}</button>
+					<button type="reset" class="btn btn-default btn-sm">${text('重置')}</button>
+				</div>
+			</#form:form>
+			<table id="dataGrid"></table>
+			<div id="dataGridPage"></div>
+		</div>
+	</div>
+</div>
+<% } %>
+<script>
+// 初始化DataGrid对象
+$('#dataGrid').dataGrid({
+	searchForm: $("#searchForm"),
+	columnModel: [
+		{header:'${text("车辆id")}', name:'carId', index:'a.car_id', width:150, align:"left", frozen:true, formatter: function(val, obj, row, act){
+			return '<a href="${ctx}/car/carDriverMsg/form?id='+row.id+'" class="btnList" data-title="${text("编辑car_driver_msg")}">'+(val||row.id)+'</a>';
+		}},
+		{header:'${text("驾驶员id")}', name:'driverId', index:'a.driver_id', width:150, align:"center"},
+		{header:'${text("消息状态")}', name:'sendStatus', index:'a.send_status', width:150, align:"center", formatter: function(val, obj, row, act){
+			return js.getDictLabel(${@DictUtils.getDictListJson('')}, val, '${text("未知")}', true);
+		}},
+		{header:'${text("消息类型")}', name:'msgType', index:'a.msg_type', width:150, align:"center", formatter: function(val, obj, row, act){
+			return js.getDictLabel(${@DictUtils.getDictListJson('')}, val, '${text("未知")}', true);
+		}},
+		{header:'${text("操作")}', name:'actions', width:120, sortable:false, title:false, formatter: function(val, obj, row, act){
+			var actions = [];
+			<% if(hasPermi('car:carDriverMsg:edit')){ %>
+				actions.push('<a href="${ctx}/car/carDriverMsg/form?id='+row.id+'" class="btnList" title="${text("编辑car_driver_msg")}"><i class="fa fa-pencil"></i></a>&nbsp;');
+				actions.push('<a href="${ctx}/car/carDriverMsg/delete?id='+row.id+'" class="btnList" title="${text("删除car_driver_msg")}" data-confirm="${text("确认要删除该car_driver_msg吗？")}"><i class="fa fa-trash-o"></i></a>&nbsp;');
+			<% } %>
+			return actions.join('');
+		}}
+	],
+	// 加载成功后执行事件
+	ajaxSuccess: function(data){
+		
+	}
+});
+</script>

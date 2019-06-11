@@ -1,0 +1,59 @@
+<% layout('/layouts/default.html', {title: '', bodyClass: ''}){ %>
+<!-- <link rel="stylesheet" href="${ctxStatic}/modules/sys/sysDesktop.css?${_version}"> -->
+<div class="content pb0">
+	<div class="row">
+		<div class="col-md-3 col-sm-6 col-xs-12">
+			<div class="info-box">
+				<span class="info-box-icon bg-aqua"><i class="fa fa-cog"></i></span>
+				<div class="info-box-content">
+					<span class="info-box-text">CPU 使用率</span>
+					<span class="info-box-number">25<small>%</small></span>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-3 col-sm-6 col-xs-12">
+			<div class="info-box">
+				<span class="info-box-icon bg-red"><i class="fa fa-google-plus"></i></span>
+				<div class="info-box-content">
+					<span class="info-box-text">关注数</span>
+					<span class="info-box-number">78</span>
+				</div>
+			</div>
+		</div>
+
+		<!-- fix for small devices only -->
+		<div class="clearfix visible-sm-block"></div>
+
+		<div class="col-md-3 col-sm-6 col-xs-12">
+			<div class="info-box">
+				<span class="info-box-icon bg-green"><i class="fa fa-internet-explorer"></i></span>
+				<div class="info-box-content">
+					<span class="info-box-text">因特网</span>
+					<span class="info-box-number">52</span>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-3 col-sm-6 col-xs-12">
+			<div class="info-box">
+				<span class="info-box-icon bg-yellow"><i class="fa fa-users"></i></span>
+
+				<div class="info-box-content">
+					<span class="info-box-text">新用户</span>
+					<span class="info-box-number">26</span>
+				</div>
+			</div>
+		</div>
+	</div>	
+</div>
+<footer class="main-footer m0">
+	<div class="pull-right hidden-xs">当前版本： ${@Global.getConfig('productVersion')}</div>
+	&copy; ${@DateUtils.getYear()} ${@Global.getConfig('productName')} - Powered By <a href="http://www.huahuishi.cn">华慧视</a>
+</footer>
+<% } %>
+<script>
+$(window).resize(function(){
+	var footerHeight  = $('.main-footer').outerHeight() || 0;
+	var windowHeight  = $(window).height();
+	$('.content').css('min-height', windowHeight - footerHeight)
+}).resize();
+</script>

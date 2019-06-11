@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeesite.modules.car.dao.CarInfoDao">
+	
+	<!-- 查询数据
+	<select id="findList" resultType="CarInfo">
+		SELECT ${sqlMap.column.toSql()}
+		FROM ${sqlMap.table.toSql()}
+		<where>
+			${sqlMap.where.toSql()}
+		</where>
+		ORDER BY ${sqlMap.order.toSql()}
+	</select> -->
+	<!--  -->
+	<insert id="addRelate" parameterType="java.lang.String">
+		insert into cardriver_relate(car_id,driver_id) value(#{car_id},#{driver_id})
+	</insert>
+	
+	<delete id="deleteAllRelate" parameterType="java.lang.String">
+			delete from cardriver_relate where car_id=#{id}
+	</delete>
+	
+	<select id="findCarByImei" parameterType="java.lang.String" resultType="com.jeesite.modules.car.entity.CarInfo">
+		select 
+			id,
+			platenum,
+			organization,
+			imei			
+		from 
+			car_info
+		where 
+			imei=#{imei}
+	</select>
+	
+	<select id="findallDrivers" parameterType="java.lang.String" resultType="com.jeesite.modules.driver.entity.DriverInfo">
+		select 
+			d.id,
+			d.name,
+			d.telephone,
+			d.sex,
+			d.facefile
+		from
+			cardriver_relate r,
+			driver_info d
+		where
+		    r.driver_id=d.id
+		and r.car_id=#{carId}
+	</select>
+	
+	<select id="findMsgByCarId" parameterType="java.lang.String" resultType="com.jeesite.modules.car.entity.CarDriverMsg">
+		select 
+			id,
+			car_id carId,
+			msg_type msgType,
+			send_status sendStatus
+		from
+			car_driver_msg  
+		where 
+			car_id=#{carId}
+		order by create_date desc
+		limit 0,1
+	</select>
+	
+	<select id="findImei" parameterType="java.lang.String"  resultType="java.lang.Integer">
+		select count(*) from car_info where imei=#{imei}
+	</select>
+	
+	<update id="updateSta" parameterType="java.lang.String">
+		update car_info set onlinestate=0 where imei=#{imei}
+	</update>
+	
+	<update id="intiStatus" parameterType="java.lang.String">
+		update car_info set onlinestate=1 where imei=#{imei} 
+	</update>
+</mapper>

@@ -1,0 +1,97 @@
+<% layout('/layouts/default.html', {title: '司机管理', libs: ['validate','fileupload']}){ %>
+<div class="main-content">
+	<div class="box box-main">
+		<div class="box-header with-border">
+			<div class="box-title">
+				<i class="icon-user"></i> ${text(driverInfo.isNewRecord ? '新增司机' : '编辑司机')}
+			</div>
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+			</div>
+		</div>
+		<#form:form id="inputForm" model="${driverInfo}" action="${ctx}/driver/driverInfo/save" method="post" class="form-horizontal">
+			<div class="box-body">
+				<div class="form-unit">${text('基本信息')}</div>
+				<#form:hidden path="id"/>
+				<div class="row">
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label col-sm-4" title="">
+								<span class="required ">*</span> ${text('司机姓名')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-4">
+								<#form:input path="name" maxlength="64" class="form-control required"/>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label col-sm-4" title="">
+								<span class="required ">*</span> ${text('电话号码')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-4">
+								<#form:input path="telephone" maxlength="64" class="form-control mobile"/>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label col-sm-4" title="">
+								<span class="required ">*</span> ${text('性别')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-4">
+								<#form:select path="sex" dictType="driver_sex" class="form-control required " />
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="form-group">
+							<label class="control-label col-sm-2" title="">
+								<span class="required ">*</span> ${text('人脸图片')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-3">
+								<#form:fileupload id="uploadImage" bizKey="${driverInfo.id}" bizType="driverInfo_image" uploadType="image" class="" readonly="false"
+									 returnPath="true" filePathInputId="facefile"  maxUploadNum="1" allowSuffixes=".jpg,.png,.jpeg"  preview=""/>
+							</div>
+						</div>
+					</div>
+				</div>
+				<#form:hidden path="facefile"/>
+			</div>
+			<div class="box-footer">
+				<div class="row">
+					<div class="col-sm-offset-2 col-sm-10">
+						<% if (hasPermi('driver:driverInfo:edit')){ %>
+							<button type="submit" class="btn btn-sm btn-primary" id="btnSubmit"><i class="fa fa-check"></i> ${text('保 存')}</button>&nbsp;
+						<% } %>
+						<button type="button" class="btn btn-sm btn-default" id="btnCancel" onclick="js.closeCurrentTabPage()"><i class="fa fa-reply-all"></i> ${text('关 闭')}</button>
+					</div>
+				</div>
+			</div>
+		</#form:form>
+	</div>
+</div>
+<% } %>
+<script>
+$("#inputForm").validate({
+	submitHandler: function(form){
+		js.ajaxSubmitForm($(form), function(data){
+			js.showMessage(data.message);
+			if(data.result == Global.TRUE){
+				js.closeCurrentTabPage(function(contentWindow){
+					contentWindow.page();
+				});
+			}
+		}, "json");
+    }
+});
+
+$(function(){
+	var uploader = window.webuploader[0];
+	uploader.on('all',  function(file) {
+		$("div.info").css("display","none");
+	});
+});
+</script>
